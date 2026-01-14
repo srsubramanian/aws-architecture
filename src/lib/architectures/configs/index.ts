@@ -6,3 +6,4 @@
 export { serverlessPaymentArchitecture } from './serverless-payment';
 export { microservicesEcommerceArchitecture } from './microservices-ecommerce';
 export { eventDrivenOrdersArchitecture } from './event-driven-orders';
+export { containerizedWebApp } from './containerized-webapp';

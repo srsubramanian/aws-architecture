@@ -8,6 +8,7 @@ import {
   serverlessPaymentArchitecture,
   microservicesEcommerceArchitecture,
   eventDrivenOrdersArchitecture,
+  containerizedWebApp,
 } from './configs';
 
 /** All registered architectures */
@@ -15,6 +16,7 @@ export const architectures: ArchitectureDefinition[] = [
   serverlessPaymentArchitecture,
   microservicesEcommerceArchitecture,
   eventDrivenOrdersArchitecture,
+  containerizedWebApp,
 ];
 
 /** Get architecture by ID */
