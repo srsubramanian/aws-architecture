@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+:root {
+  --aws-orange: #FF9900;
+  --aws-blue: #146EB4;
+  --aws-squid: #232F3E;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--aws-orange);
+  outline-offset: 2px;
+}
+
+/* Animation utilities */
+@layer utilities {
+  .animate-in {
+    animation: animate-in 0.3s ease-out;
+  }
+
+  @keyframes animate-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Data flow animation */
+  .animate-flow {
+    animation: flow 2s linear infinite;
+  }
+
+  @keyframes flow {
+    from {
+      stroke-dashoffset: 100;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* Pulse glow effect */
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 5px rgba(255, 153, 0, 0.3);
+    }
+    to {
+      box-shadow: 0 0 20px rgba(255, 153, 0, 0.6);
+    }
+  }
+}
+
+/* Dark mode transitions */
+.dark {
+  color-scheme: dark;
+}
+
+/* Diagram canvas styles */
+.diagram-canvas {
+  background-image:
+    radial-gradient(circle, #e5e7eb 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.dark .diagram-canvas {
+  background-image:
+    radial-gradient(circle, #374151 1px, transparent 1px);
+}
+
+/* Service component base styles */
+.aws-service {
+  @apply relative flex flex-col items-center justify-center;
+  @apply transition-all duration-200 ease-out;
+}
+
+.aws-service:hover {
+  @apply z-10;
+}
+
+/* Connection line styles */
+.connection-line {
+  @apply transition-all duration-200;
+}
+
+.connection-line.highlighted {
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+/* Tooltip styles */
+.service-tooltip {
+  @apply absolute z-50 pointer-events-none;
+  @apply bg-gray-800 text-white rounded-lg shadow-xl;
+  @apply p-3 min-w-[200px] max-w-[300px];
+}
+
+/* Control button styles */
+.control-button {
+  @apply flex items-center justify-center;
+  @apply w-10 h-10 rounded-lg;
+  @apply bg-gray-100 dark:bg-gray-700;
+  @apply text-gray-600 dark:text-gray-300;
+  @apply hover:bg-gray-200 dark:hover:bg-gray-600;
+  @apply transition-colors duration-150;
+}
+
+.control-button.active {
+  @apply bg-aws-orange text-white;
+}
+
+.control-button:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Progress bar styles */
+.progress-bar {
+  @apply h-1.5 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden;
+}
+
+.progress-bar-fill {
+  @apply h-full bg-aws-orange rounded-full;
+  @apply transition-all duration-300 ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .diagram-controls {
+    @apply flex-wrap justify-center;
+  }
+}
+
+/* Print styles */
+@media print {
+  .diagram-controls,
+  .zoom-controls {
+    display: none !important;
+  }
+
+  .diagram-canvas {
+    background: white !important;
+  }
+}
