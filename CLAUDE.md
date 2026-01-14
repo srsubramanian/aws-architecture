@@ -21,7 +21,8 @@ src/
 │   │   ├── configs/           # JSON configs for each architecture
 │   │   │   ├── serverless-payment.ts
 │   │   │   ├── microservices-ecommerce.ts
-│   │   │   └── event-driven-orders.ts
+│   │   │   ├── event-driven-orders.ts
+│   │   │   └── containerized-webapp.ts  # AWS reference architecture example
 │   │   ├── registry.ts        # Architecture registry and search
 │   │   ├── ArchitectureRenderer.tsx  # Generic renderer
 │   │   └── ArchitectureCatalog.tsx   # Sidebar + preview UI
@@ -136,6 +137,7 @@ export const myArchitecture: ArchitectureDefinition = {
   description: 'Description here',
   category: 'serverless', // or 'containers', 'microservices', etc.
   tags: ['lambda', 'api-gateway'],
+  canvas: { width: 1000, height: 600 },
   services: [
     { id: 'api', type: 'api-gateway', label: 'API Gateway', position: { x: 100, y: 200 } },
     { id: 'fn', type: 'lambda', label: 'Lambda', position: { x: 300, y: 200 } },
@@ -143,11 +145,38 @@ export const myArchitecture: ArchitectureDefinition = {
   connections: [
     { id: 'api-fn', from: 'api', to: 'fn', type: 'sync', label: 'Invoke' },
   ],
+  groups: [
+    // Optional: Add nested container boxes (AWS Cloud, VPC, AZ, Subnet)
+    { id: 'aws', label: 'AWS Cloud', style: 'aws-cloud', bounds: { x: 50, y: 50, width: 900, height: 500 }, zIndex: 0 },
+    { id: 'vpc', label: 'VPC', style: 'vpc', bounds: { x: 80, y: 80, width: 400, height: 400 }, zIndex: 1 },
+  ],
 };
 ```
 
 2. Export from `src/lib/architectures/configs/index.ts`
 3. Add to registry in `src/lib/architectures/registry.ts`
+
+### Nested Container Boxes (Groups)
+
+The renderer supports AWS-style nested container boxes with these styles:
+
+| Style | Description | Appearance |
+|-------|-------------|------------|
+| `aws-cloud` | AWS Cloud boundary | Dark border with cloud icon label |
+| `vpc` | Virtual Private Cloud | Purple border with VPC icon |
+| `az` | Availability Zone | Blue dashed border, light blue background |
+| `subnet` | Private/Public Subnet | Teal dashed border, light teal background |
+| `region` | AWS Region | Blue dashed border |
+
+Groups use `zIndex` for layering (lower = behind). Example from `containerized-webapp.ts`:
+```typescript
+groups: [
+  { id: 'aws-cloud', label: 'AWS Cloud', style: 'aws-cloud', bounds: { x: 60, y: 60, width: 1030, height: 560 }, zIndex: 0 },
+  { id: 'vpc', label: 'VPC', style: 'vpc', bounds: { x: 360, y: 90, width: 560, height: 500 }, zIndex: 1 },
+  { id: 'az1', label: 'AZ 1', style: 'az', bounds: { x: 500, y: 120, width: 400, height: 180 }, zIndex: 2 },
+  { id: 'subnet', label: 'Private subnet', style: 'subnet', bounds: { x: 520, y: 150, width: 200, height: 130 }, zIndex: 3 },
+]
+```
 
 ### Architecture Categories
 
@@ -213,13 +242,18 @@ This generates:
 ## Recent Updates
 
 ### January 2026
+- **Nested Architecture Boxes** - AWS-style container rendering:
+  - Support for AWS Cloud, VPC, AZ, and Subnet container boxes
+  - Proper layering with zIndex for nested boxes
+  - Styled borders and backgrounds matching AWS reference diagrams
+  - New `containerized-webapp.ts` example replicating official AWS Guidance diagram
 - **Architecture Catalog System** - Declarative architecture management:
   - JSON-based architecture configs for easy creation and maintenance
   - ArchitectureRenderer for rendering any architecture from config
   - ArchitectureCatalog UI with sidebar + preview layout
   - Collapsible sidebar for more preview space
   - Search and category filtering
-  - 3 pre-built architectures (serverless, microservices, event-driven)
+  - 4 pre-built architectures (serverless, microservices, event-driven, containerized)
 - Added official AWS Architecture Icons (July 2025 release) - 29 service icons
 - Improved canvas UX for presentations:
   - Scroll-to-zoom now requires Ctrl/Cmd key (prevents accidental zoom)
