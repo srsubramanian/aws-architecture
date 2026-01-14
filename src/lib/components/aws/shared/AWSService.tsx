@@ -229,7 +229,7 @@ export const AWSService: React.FC<AWSServiceProps> = ({
 
       {/* Label */}
       {label && (
-        <div className="mt-1 text-xs font-medium text-center text-gray-700 dark:text-gray-300 max-w-full truncate px-1">
+        <div className="mt-1 text-xs font-medium text-center text-gray-700 dark:text-gray-300 whitespace-nowrap px-1">
           {label}
         </div>
       )}
