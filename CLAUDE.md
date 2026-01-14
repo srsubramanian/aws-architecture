@@ -6,9 +6,10 @@ A production-ready React component library for creating animated AWS architectur
 
 This library provides:
 - 27 animated AWS service components organized by category
+- Official AWS Architecture Icons (July 2025 release)
 - DataFlow animations (sync, async, stream, batch, error types)
 - Pre-built architecture templates (ServerlessPayment, Microservices, EventDriven)
-- DiagramCanvas with zoom/pan support
+- DiagramCanvas with zoom/pan support and fullscreen mode
 - Full TypeScript support with strict mode
 
 ## Directory Structure
@@ -40,7 +41,7 @@ src/
 ├── stories/                    # Storybook stories
 └── styles.css                  # Tailwind CSS styles
 public/
-└── icons/                      # AWS service SVG icons (29 icons)
+└── icons/                      # Official AWS Architecture Icons (29 SVGs, July 2025 release)
 ```
 
 ## Tech Stack
@@ -96,11 +97,21 @@ npm run build:storybook
 | Security | Red (#DD344C) | waf, shield, secrets-manager, kms, cognito |
 | Monitoring | Pink (#FF4F8B) | cloudwatch, xray |
 
+## Canvas Controls
+
+The DiagramCanvas component supports:
+- **Ctrl+scroll** (or Cmd+scroll on Mac) to zoom in/out
+- **Alt+drag** to pan the canvas
+- **Fullscreen button** (top-right) for distraction-free presentations
+- **Esc** to exit fullscreen mode
+
+Note: Regular scroll does NOT zoom to prevent accidental zooming during presentations.
+
 ## Code Conventions
 
 - All components use Motion.dev for animations
 - Service components extend the base `AWSService` component
-- Icons are SVG files in `public/icons/` with gradient backgrounds
+- Icons are official AWS Architecture Icons (July 2025) in `public/icons/`
 - Animation timing uses the constants in `src/lib/constants/animation-presets.ts`
 - All types are defined in `src/lib/types/`
 
@@ -135,3 +146,12 @@ This generates:
 - `dist/aws-architecture-animations.umd.js` (UMD)
 - `dist/index.d.ts` (TypeScript declarations)
 - `dist/style.css` (Tailwind styles)
+
+## Recent Updates
+
+### January 2026
+- Added official AWS Architecture Icons (July 2025 release) - 29 service icons
+- Improved canvas UX for presentations:
+  - Scroll-to-zoom now requires Ctrl/Cmd key (prevents accidental zoom)
+  - Added fullscreen toggle button for distraction-free viewing
+  - Updated instruction text to reflect new controls
