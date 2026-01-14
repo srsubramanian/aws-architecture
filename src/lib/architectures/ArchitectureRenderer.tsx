@@ -138,10 +138,10 @@ export const ArchitectureRenderer: React.FC<ArchitectureRendererProps> = ({
 
               // Style presets for different group types
               const stylePresets: Record<string, { bg: string; border: string; borderStyle: string; labelBg: string }> = {
-                'aws-cloud': { bg: '#232F3E', border: '#232F3E', borderStyle: 'solid', labelBg: '#232F3E' },
+                'aws-cloud': { bg: 'transparent', border: '#232F3E', borderStyle: 'solid', labelBg: '#232F3E' },
                 'vpc': { bg: 'transparent', border: '#8C4FFF', borderStyle: 'solid', labelBg: 'transparent' },
-                'az': { bg: '#E8F4F8', border: '#147EB4', borderStyle: 'dashed', labelBg: 'transparent' },
-                'subnet': { bg: '#E8F4F8', border: '#00A4A6', borderStyle: 'dashed', labelBg: 'transparent' },
+                'az': { bg: 'rgba(232, 244, 248, 0.5)', border: '#147EB4', borderStyle: 'dashed', labelBg: 'transparent' },
+                'subnet': { bg: 'rgba(232, 244, 248, 0.7)', border: '#00A4A6', borderStyle: 'dashed', labelBg: 'transparent' },
                 'region': { bg: '#F5F5F5', border: '#147EB4', borderStyle: 'dashed', labelBg: 'transparent' },
                 'custom': { bg: 'transparent', border: '#6B7280', borderStyle: 'dashed', labelBg: 'transparent' },
               };
