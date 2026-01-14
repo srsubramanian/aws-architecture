@@ -3,7 +3,7 @@
  * Main container for rendering AWS architecture diagrams
  */
 
-import React, { useRef, useCallback, useState, useMemo } from 'react';
+import React, { useRef, useCallback, useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import clsx from 'clsx';
 import type { DiagramCanvasProps } from '../../types';
@@ -30,9 +30,39 @@ const CanvasInner: React.FC<CanvasInnerProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Handle mouse wheel zoom
+  // Handle fullscreen change events (e.g., user presses Escape)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  // Toggle fullscreen mode
+  const toggleFullscreen = useCallback(async () => {
+    if (!containerRef.current) return;
+
+    try {
+      if (!document.fullscreenElement) {
+        await containerRef.current.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (err) {
+      console.error('Fullscreen error:', err);
+    }
+  }, []);
+
+  // Handle mouse wheel zoom (requires Ctrl/Cmd key to prevent accidental zoom)
   const handleWheel = useCallback((e: React.WheelEvent) => {
+    // Only zoom if Ctrl (Windows/Linux) or Cmd (Mac) is held
+    if (!e.ctrlKey && !e.metaKey) {
+      return; // Allow normal page scroll
+    }
     e.preventDefault();
     const delta = e.deltaY > 0 ? 0.9 : 1.1;
     const newZoom = Math.max(0.1, Math.min(3, state.viewport.zoom * delta));
@@ -93,9 +123,10 @@ const CanvasInner: React.FC<CanvasInnerProps> = ({
         'diagram-canvas relative overflow-hidden rounded-lg',
         'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700',
         isDragging ? 'cursor-grabbing' : 'cursor-grab',
+        isFullscreen && 'rounded-none border-0',
         className
       )}
-      style={{ width, height }}
+      style={isFullscreen ? { width: '100vw', height: '100vh' } : { width, height }}
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
@@ -144,6 +175,29 @@ const CanvasInner: React.FC<CanvasInnerProps> = ({
         </AnimatePresence>
       </motion.div>
 
+      {/* Fullscreen toggle button */}
+      <button
+        onClick={toggleFullscreen}
+        className="absolute top-4 right-4 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+        title={isFullscreen ? 'Exit fullscreen (Esc)' : 'Enter fullscreen'}
+      >
+        {isFullscreen ? (
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600 dark:text-gray-400">
+            <polyline points="4 14 10 14 10 20" />
+            <polyline points="20 10 14 10 14 4" />
+            <line x1="14" y1="10" x2="21" y2="3" />
+            <line x1="3" y1="21" x2="10" y2="14" />
+          </svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600 dark:text-gray-400">
+            <polyline points="15 3 21 3 21 9" />
+            <polyline points="9 21 3 21 3 15" />
+            <line x1="21" y1="3" x2="14" y2="10" />
+            <line x1="3" y1="21" x2="10" y2="14" />
+          </svg>
+        )}
+      </button>
+
       {/* Zoom indicator */}
       <div className="absolute bottom-4 right-4 bg-white dark:bg-gray-800 px-2 py-1 rounded text-xs text-gray-600 dark:text-gray-400 shadow-sm border border-gray-200 dark:border-gray-700">
         {Math.round(state.viewport.zoom * 100)}%
@@ -151,7 +205,7 @@ const CanvasInner: React.FC<CanvasInnerProps> = ({
 
       {/* Pan/zoom instructions */}
       <div className="absolute bottom-4 left-4 text-xs text-gray-400 dark:text-gray-500">
-        Scroll to zoom • Alt+drag to pan
+        Ctrl+scroll to zoom • Alt+drag to pan • Click ⛶ for fullscreen
       </div>
     </div>
   );
