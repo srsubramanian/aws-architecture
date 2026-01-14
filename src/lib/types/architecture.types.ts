@@ -38,18 +38,33 @@ export interface ArchitectureConnection {
   sequence?: number;
 }
 
-/** Group of services (e.g., VPC boundary) */
+/** Group/container box (e.g., AWS Cloud, VPC, AZ, Subnet) */
 export interface ArchitectureGroup {
   /** Unique identifier */
   id: string;
   /** Display label */
   label: string;
-  /** Services contained in this group */
-  serviceIds: string[];
-  /** Group style */
-  style?: 'vpc' | 'subnet' | 'region' | 'custom';
+  /** Services contained in this group (used for auto-bounds if bounds not specified) */
+  serviceIds?: string[];
+  /** Explicit bounds (if not specified, calculated from serviceIds) */
+  bounds?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+  /** Group style - determines visual appearance */
+  style?: 'aws-cloud' | 'vpc' | 'az' | 'subnet' | 'region' | 'custom';
   /** Border color */
   color?: string;
+  /** Background color (overrides style default) */
+  backgroundColor?: string;
+  /** Border style */
+  borderStyle?: 'solid' | 'dashed';
+  /** Z-index for layering (lower = behind, higher = front) */
+  zIndex?: number;
+  /** Show icon in label */
+  showIcon?: boolean;
 }
 
 /** Legend item */

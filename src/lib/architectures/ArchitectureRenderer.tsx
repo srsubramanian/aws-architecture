@@ -117,44 +117,95 @@ export const ArchitectureRenderer: React.FC<ArchitectureRendererProps> = ({
             {architecture.description}
           </div>
 
-          {/* Groups (VPC boundaries, etc.) */}
-          {architecture.groups?.map((group) => {
-            // Calculate group bounds from services
-            const groupServices = architecture.services.filter((s) =>
-              group.serviceIds.includes(s.id)
-            );
-            if (groupServices.length === 0) return null;
+          {/* Groups (AWS Cloud, VPC, AZ, Subnet boxes) - sorted by zIndex */}
+          {[...(architecture.groups ?? [])]
+            .sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0))
+            .map((group) => {
+              // Calculate bounds from services if not explicitly set
+              let bounds = group.bounds;
+              if (!bounds && group.serviceIds && group.serviceIds.length > 0) {
+                const groupServices = architecture.services.filter((s) =>
+                  group.serviceIds!.includes(s.id)
+                );
+                if (groupServices.length === 0) return null;
+                const minX = Math.min(...groupServices.map((s) => s.position.x)) - 30;
+                const minY = Math.min(...groupServices.map((s) => s.position.y)) - 40;
+                const maxX = Math.max(...groupServices.map((s) => s.position.x)) + 110;
+                const maxY = Math.max(...groupServices.map((s) => s.position.y)) + 110;
+                bounds = { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+              }
+              if (!bounds) return null;
 
-            const minX = Math.min(...groupServices.map((s) => s.position.x)) - 30;
-            const minY = Math.min(...groupServices.map((s) => s.position.y)) - 40;
-            const maxX = Math.max(...groupServices.map((s) => s.position.x)) + 110;
-            const maxY = Math.max(...groupServices.map((s) => s.position.y)) + 110;
+              // Style presets for different group types
+              const stylePresets: Record<string, { bg: string; border: string; borderStyle: string; labelBg: string }> = {
+                'aws-cloud': { bg: '#232F3E', border: '#232F3E', borderStyle: 'solid', labelBg: '#232F3E' },
+                'vpc': { bg: 'transparent', border: '#8C4FFF', borderStyle: 'solid', labelBg: 'transparent' },
+                'az': { bg: '#E8F4F8', border: '#147EB4', borderStyle: 'dashed', labelBg: 'transparent' },
+                'subnet': { bg: '#E8F4F8', border: '#00A4A6', borderStyle: 'dashed', labelBg: 'transparent' },
+                'region': { bg: '#F5F5F5', border: '#147EB4', borderStyle: 'dashed', labelBg: 'transparent' },
+                'custom': { bg: 'transparent', border: '#6B7280', borderStyle: 'dashed', labelBg: 'transparent' },
+              };
 
-            return (
-              <div
-                key={group.id}
-                className="absolute border-2 border-dashed rounded-xl"
-                style={{
-                  left: minX,
-                  top: minY,
-                  width: maxX - minX,
-                  height: maxY - minY,
-                  borderColor: group.color ?? '#A166FF',
-                  backgroundColor: `${group.color ?? '#A166FF'}10`,
-                }}
-              >
-                <span
-                  className="absolute top-2 left-4 text-xs font-medium"
-                  style={{ color: group.color ?? '#A166FF' }}
+              const defaultPreset = { bg: 'transparent', border: '#6B7280', borderStyle: 'dashed', labelBg: 'transparent' };
+              const preset = stylePresets[group.style ?? 'custom'] ?? defaultPreset;
+              const bgColor = group.backgroundColor ?? preset.bg;
+              const borderColor = group.color ?? preset.border;
+              const borderStyle = group.borderStyle ?? preset.borderStyle;
+              const isAwsCloud = group.style === 'aws-cloud';
+              const isVpc = group.style === 'vpc';
+
+              return (
+                <div
+                  key={group.id}
+                  className={`absolute rounded-lg ${isAwsCloud ? '' : ''}`}
+                  style={{
+                    left: bounds.x,
+                    top: bounds.y,
+                    width: bounds.width,
+                    height: bounds.height,
+                    backgroundColor: bgColor,
+                    border: `2px ${borderStyle} ${borderColor}`,
+                    zIndex: group.zIndex ?? 0,
+                  }}
                 >
-                  {group.label}
-                </span>
-              </div>
-            );
-          })}
+                  {/* Label */}
+                  <div
+                    className={`absolute flex items-center gap-2 ${
+                      isAwsCloud ? 'top-2 left-3' : 'top-1 left-3'
+                    }`}
+                    style={{
+                      backgroundColor: preset.labelBg,
+                      padding: isAwsCloud ? '4px 8px' : '2px 6px',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    {/* AWS Cloud icon */}
+                    {isAwsCloud && (
+                      <svg width="20" height="12" viewBox="0 0 40 25" fill="none">
+                        <path d="M13.7 19.4c-4.6-.3-8.1-4.3-7.8-9 .3-4.2 3.7-7.5 7.9-7.8 1.1-1.7 3-2.6 5-2.6 2.7 0 5.1 1.8 5.9 4.4 3.8.4 6.6 3.8 6.3 7.7-.3 3.5-3.2 6.2-6.7 6.3" stroke="#fff" strokeWidth="2"/>
+                        <path d="M8 20l3-3m0 3l-3-3m20 3l3-3m0 3l-3-3" stroke="#F90" strokeWidth="2"/>
+                      </svg>
+                    )}
+                    {/* VPC icon */}
+                    {isVpc && (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <rect x="2" y="2" width="20" height="20" rx="2" stroke={borderColor} strokeWidth="2"/>
+                        <circle cx="12" cy="12" r="4" stroke={borderColor} strokeWidth="2"/>
+                      </svg>
+                    )}
+                    <span
+                      className={`text-xs font-medium ${isAwsCloud ? 'text-white' : ''}`}
+                      style={{ color: isAwsCloud ? '#fff' : borderColor }}
+                    >
+                      {group.label}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
 
-          {/* Services */}
-          <motion.div variants={containerVariants} initial="hidden" animate="visible">
+          {/* Services - render on top of groups */}
+          <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ position: 'relative', zIndex: 10 }}>
             {architecture.services.map((service, index) => (
               <AWSService
                 key={service.id}
