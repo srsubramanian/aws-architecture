@@ -104,3 +104,6 @@ export * from './components/diagrams';
 
 // Pre-built Templates
 export * from './components/templates';
+
+// Architecture Catalog (declarative architecture management)
+export * from './architectures';

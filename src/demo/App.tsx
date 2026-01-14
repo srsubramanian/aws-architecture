@@ -14,12 +14,15 @@ import {
   Package,
   Github,
   ExternalLink,
+  LayoutGrid,
+  List,
 } from 'lucide-react';
 
-// Import templates from library
-import { ServerlessPayment, Microservices, EventDriven } from '../lib';
+// Import templates and catalog from library
+import { ServerlessPayment, Microservices, EventDriven, ArchitectureCatalog } from '../lib';
 
 type DiagramType = 'serverless' | 'microservices' | 'event-driven';
+type ViewMode = 'templates' | 'catalog';
 
 const diagrams: Array<{
   id: DiagramType;
@@ -49,6 +52,7 @@ const diagrams: Array<{
 
 function App() {
   const [isDark, setIsDark] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('catalog');
   const [selectedDiagram, setSelectedDiagram] = useState<DiagramType>('serverless');
   const [autoPlay, setAutoPlay] = useState(true);
   const [speed, setSpeed] = useState(1);
@@ -80,31 +84,61 @@ function App() {
 
             {/* Actions */}
             <div className="flex items-center gap-4">
-              {/* Speed control */}
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500 dark:text-gray-400">Speed:</span>
-                <select
-                  value={speed}
-                  onChange={(e) => setSpeed(Number(e.target.value))}
-                  className="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-300"
+              {/* View mode toggle */}
+              <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('catalog')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                    viewMode === 'catalog'
+                      ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  }`}
                 >
-                  <option value={0.5}>0.5x</option>
-                  <option value={1}>1x</option>
-                  <option value={1.5}>1.5x</option>
-                  <option value={2}>2x</option>
-                </select>
+                  <List size={16} />
+                  Catalog
+                </button>
+                <button
+                  onClick={() => setViewMode('templates')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                    viewMode === 'templates'
+                      ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  <LayoutGrid size={16} />
+                  Templates
+                </button>
               </div>
 
+              {/* Speed control */}
+              {viewMode === 'templates' && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Speed:</span>
+                  <select
+                    value={speed}
+                    onChange={(e) => setSpeed(Number(e.target.value))}
+                    className="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-300"
+                  >
+                    <option value={0.5}>0.5x</option>
+                    <option value={1}>1x</option>
+                    <option value={1.5}>1.5x</option>
+                    <option value={2}>2x</option>
+                  </select>
+                </div>
+              )}
+
               {/* Auto-play toggle */}
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={autoPlay}
-                  onChange={(e) => setAutoPlay(e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300 text-aws-orange focus:ring-aws-orange"
-                />
-                <span className="text-sm text-gray-600 dark:text-gray-400">Auto-play</span>
-              </label>
+              {viewMode === 'templates' && (
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={autoPlay}
+                    onChange={(e) => setAutoPlay(e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-300 text-aws-orange focus:ring-aws-orange"
+                  />
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Auto-play</span>
+                </label>
+              )}
 
               {/* Dark mode toggle */}
               <button
@@ -130,90 +164,103 @@ function App() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Diagram selector */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            Select Architecture
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {diagrams.map((diagram) => (
-              <motion.button
-                key={diagram.id}
-                onClick={() => setSelectedDiagram(diagram.id)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`
-                  p-4 rounded-xl border-2 text-left transition-all
-                  ${
-                    selectedDiagram === diagram.id
-                      ? 'border-aws-orange bg-aws-orange/5 dark:bg-aws-orange/10'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-800'
-                  }
-                `}
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div
-                    className={`
-                      p-2 rounded-lg
-                      ${
-                        selectedDiagram === diagram.id
-                          ? 'bg-aws-orange text-white'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
-                      }
-                    `}
-                  >
-                    {diagram.icon}
-                  </div>
-                  <h3 className="font-semibold text-gray-800 dark:text-gray-200">
-                    {diagram.name}
-                  </h3>
-                </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {diagram.description}
-                </p>
-              </motion.button>
-            ))}
-          </div>
+      {/* Catalog View */}
+      {viewMode === 'catalog' && (
+        <div className="h-[calc(100vh-4rem)]">
+          <ArchitectureCatalog
+            theme={isDark ? 'dark' : 'light'}
+            autoPlay={true}
+            speed={1}
+          />
         </div>
+      )}
 
-        {/* Diagram display */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={selectedDiagram}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              {selectedDiagram === 'serverless' && (
-                <ServerlessPayment
-                  theme={isDark ? 'dark' : 'light'}
-                  autoPlay={autoPlay}
-                  speed={speed}
-                  showControls={true}
-                />
-              )}
-              {selectedDiagram === 'microservices' && (
-                <Microservices
-                  theme={isDark ? 'dark' : 'light'}
-                  autoPlay={autoPlay}
-                  speed={speed}
-                  showControls={true}
-                />
-              )}
-              {selectedDiagram === 'event-driven' && (
-                <EventDriven
-                  theme={isDark ? 'dark' : 'light'}
-                  autoPlay={autoPlay}
-                  speed={speed}
-                  showControls={true}
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </div>
+      {/* Templates View */}
+      {viewMode === 'templates' && (
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Diagram selector */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+              Select Architecture
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {diagrams.map((diagram) => (
+                <motion.button
+                  key={diagram.id}
+                  onClick={() => setSelectedDiagram(diagram.id)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`
+                    p-4 rounded-xl border-2 text-left transition-all
+                    ${
+                      selectedDiagram === diagram.id
+                        ? 'border-aws-orange bg-aws-orange/5 dark:bg-aws-orange/10'
+                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-800'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div
+                      className={`
+                        p-2 rounded-lg
+                        ${
+                          selectedDiagram === diagram.id
+                            ? 'bg-aws-orange text-white'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+                        }
+                      `}
+                    >
+                      {diagram.icon}
+                    </div>
+                    <h3 className="font-semibold text-gray-800 dark:text-gray-200">
+                      {diagram.name}
+                    </h3>
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {diagram.description}
+                  </p>
+                </motion.button>
+              ))}
+            </div>
+          </div>
+
+          {/* Diagram display */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedDiagram}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {selectedDiagram === 'serverless' && (
+                  <ServerlessPayment
+                    theme={isDark ? 'dark' : 'light'}
+                    autoPlay={autoPlay}
+                    speed={speed}
+                    showControls={true}
+                  />
+                )}
+                {selectedDiagram === 'microservices' && (
+                  <Microservices
+                    theme={isDark ? 'dark' : 'light'}
+                    autoPlay={autoPlay}
+                    speed={speed}
+                    showControls={true}
+                  />
+                )}
+                {selectedDiagram === 'event-driven' && (
+                  <EventDriven
+                    theme={isDark ? 'dark' : 'light'}
+                    autoPlay={autoPlay}
+                    speed={speed}
+                    showControls={true}
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
         {/* Usage code example */}
         <div className="mt-8">
@@ -289,6 +336,7 @@ function MyApp() {
           </div>
         </div>
       </main>
+      )}
 
       {/* Footer */}
       <footer className="mt-16 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
