@@ -166,11 +166,18 @@ export const microservicesEcommerceArchitecture: ArchitectureDefinition = {
   ],
   groups: [
     {
+      id: 'aws-cloud',
+      label: 'AWS Cloud',
+      style: 'aws-cloud',
+      bounds: { x: 30, y: 60, width: 920, height: 480 },
+      zIndex: 0,
+    },
+    {
       id: 'vpc',
       label: 'VPC',
       serviceIds: ['alb', 'user-service', 'order-service', 'inventory-service', 'aurora', 'elasticache'],
       style: 'vpc',
-      color: '#A166FF',
+      zIndex: 1,
     },
   ],
   legend: [
